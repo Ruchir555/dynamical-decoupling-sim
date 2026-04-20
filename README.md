@@ -1,0 +1,87 @@
+# Dynamical Decoupling Simulation
+
+This project benchmarks basic dynamical decoupling protocols for a single qubit under dephasing noise.
+
+## Implemented sequences
+
+- Free evolution
+- Hahn echo
+- CPMG with 4 pulses
+- CPMG with 8 pulses
+
+## What it does
+
+- Simulates qubit evolution with a Bloch-vector model
+- Applies ideal pi-pulse sequences about the x-axis
+- Compares coherence preservation across protocols
+- Sweeps over dephasing strength
+- Generates benchmark plots and a CSV summary
+
+## Project structure
+
+```text
+dynamical-decoupling-sim/
+|-- README.md
+|-- requirements.txt
+|-- .gitignore
+|-- src/
+|   |-- bloch_sim.py
+|   |-- sequences.py
+|   |-- metrics.py
+|   `-- run_benchmark.py
+`-- results/
+```
+
+## Setup
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+Windows:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the benchmark:
+
+```bash
+python src/run_benchmark.py
+```
+
+## Output
+
+Running the benchmark generates:
+
+- `results/dd_sequences.png`
+- `results/final_coherence.csv`
+- `results/dd_benchmark.png`
+
+## Resume-friendly description
+
+Built a Python simulation framework to benchmark dynamical decoupling protocols under dephasing noise, comparing coherence preservation across pulse sequences and parameter regimes.
+
+## Future extensions
+
+- Add finite-width pulses
+- Add amplitude damping
+- Add noisy pulse errors
+- Add filter-function comparisons
+- Add a heatmap over dephasing rate and pulse count
