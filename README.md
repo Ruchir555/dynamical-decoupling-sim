@@ -74,10 +74,6 @@ Running the benchmark generates:
 - `results/final_coherence.csv`
 - `results/dd_benchmark.png`
 
-## Resume-friendly description
-
-Built a Python simulation framework to benchmark dynamical decoupling protocols under dephasing noise, comparing coherence preservation across pulse sequences and parameter regimes.
-
 ## Future extensions
 
 - Add finite-width pulses
