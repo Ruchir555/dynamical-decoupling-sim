@@ -1,15 +1,23 @@
 import csv
+import os
 from pathlib import Path
 
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+MPL_CONFIG_DIR = PROJECT_ROOT / ".matplotlib"
+MPL_CONFIG_DIR.mkdir(exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(MPL_CONFIG_DIR))
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from bloch_sim import simulate_sequence
 from metrics import coherence_x, final_coherence
 from sequences import cpmg_sequence, free_sequence, hahn_echo_sequence
 
 
-RESULTS_DIR = Path(__file__).resolve().parent.parent / "results"
+RESULTS_DIR = PROJECT_ROOT / "results"
 
 
 def plot_single_run(
