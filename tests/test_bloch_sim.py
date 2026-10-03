@@ -7,7 +7,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from bloch_sim import simulate_sequence
-from sequences import cpmg_sequence, hahn_echo_sequence
+from metrics import bloch_norm, coherence_x, final_coherence
+from sequences import cpmg_sequence, free_sequence, hahn_echo_sequence
 
 
 class BlochSimulationTests(unittest.TestCase):
@@ -48,6 +49,39 @@ class BlochSimulationTests(unittest.TestCase):
         )
         self.assertAlmostEqual(trajectory[-1, 0], np.exp(-gamma_phi * total_time), places=12)
         self.assertAlmostEqual(trajectory[-1, 1], 0.0, places=12)
+
+    def test_invalid_simulation_parameters_are_rejected(self):
+        with self.assertRaises(ValueError):
+            simulate_sequence(0.0, 0.1, 1.0, 0.1, [])
+        with self.assertRaises(ValueError):
+            simulate_sequence(1.0, 0.0, 1.0, 0.1, [])
+        with self.assertRaises(ValueError):
+            simulate_sequence(1.0, 0.1, 1.0, -0.1, [])
+        with self.assertRaises(ValueError):
+            simulate_sequence(1.0, 0.1, 1.0, 0.1, [0.0])
+        with self.assertRaises(ValueError):
+            simulate_sequence(1.0, 0.1, 1.0, 0.1, [1.0])
+
+    def test_sequence_generators_validate_inputs(self):
+        with self.assertRaises(ValueError):
+            free_sequence(0.0)
+        with self.assertRaises(ValueError):
+            hahn_echo_sequence(-1.0)
+        for invalid_count in (0, -1, 2.5, True):
+            with self.subTest(n_pulses=invalid_count):
+                with self.assertRaises(ValueError):
+                    cpmg_sequence(1.0, invalid_count)
+
+    def test_cpmg_sequence_is_symmetric(self):
+        pulse_times = cpmg_sequence(2.0, 4)
+        np.testing.assert_allclose(pulse_times, [0.25, 0.75, 1.25, 1.75])
+        np.testing.assert_allclose(pulse_times, 2.0 - np.array(pulse_times[::-1]))
+
+    def test_metrics_extract_expected_quantities(self):
+        trajectory = np.array([[1.0, 0.0, 0.0], [0.6, 0.8, 0.0]])
+        np.testing.assert_allclose(coherence_x(trajectory), [1.0, 0.6])
+        self.assertEqual(final_coherence(trajectory), 0.6)
+        np.testing.assert_allclose(bloch_norm(trajectory), [1.0, 1.0])
 
 
 if __name__ == "__main__":

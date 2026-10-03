@@ -78,6 +78,9 @@ Run the analytical checks:
 python -m unittest discover -s tests
 ```
 
+GitHub Actions runs the analytical tests and a headless benchmark on Python
+3.11 and 3.13 for every push and pull request.
+
 ## Output
 
 Running the benchmark generates:
