@@ -75,7 +75,7 @@ def sweep_dephasing(
     output_path = RESULTS_DIR / "final_coherence.csv"
 
     with output_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
+        writer = csv.writer(handle, lineterminator="\n")
         writer.writerow(["gamma_phi", "sequence", "final_coherence"])
 
         for gamma_phi in gamma_values:

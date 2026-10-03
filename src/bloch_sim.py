@@ -62,32 +62,38 @@ def simulate_sequence(
     """
     Simulate a qubit initialized in |+x> with Bloch vector [1, 0, 0].
     """
-    n_steps = int(total_time / dt)
-    times = np.linspace(0.0, total_time, n_steps + 1)
+    if total_time <= 0.0:
+        raise ValueError("total_time must be positive")
+    if dt <= 0.0:
+        raise ValueError("dt must be positive")
+    if gamma_phi < 0.0:
+        raise ValueError("gamma_phi must be non-negative")
 
-    sorted_pulse_times = sorted(pulse_times)
+    n_full_steps = int(np.floor(total_time / dt))
+    times = np.arange(n_full_steps + 1, dtype=float) * dt
+    if not np.isclose(times[-1], total_time):
+        times = np.append(times, total_time)
+    else:
+        times[-1] = total_time
+
+    sorted_pulse_times = sorted(float(t) for t in pulse_times)
+    if any(t <= 0.0 or t >= total_time for t in sorted_pulse_times):
+        raise ValueError("pulse times must lie strictly inside the simulation interval")
     pulse_index = 0
-    tol = dt / 2.0
-
     bloch = np.array([1.0, 0.0, 0.0], dtype=float)
     trajectory = [bloch.copy()]
+    current_time = 0.0
 
-    for i in range(n_steps):
-        current_time = times[i + 1]
-        bloch = free_evolution_step(
-            bloch_vec=bloch,
-            omega=omega,
-            gamma_phi=gamma_phi,
-            dt=dt,
-        )
-
-        while (
-            pulse_index < len(sorted_pulse_times)
-            and abs(current_time - sorted_pulse_times[pulse_index]) <= tol
-        ):
+    for output_time in times[1:]:
+        while pulse_index < len(sorted_pulse_times) and sorted_pulse_times[pulse_index] <= output_time:
+            pulse_time = sorted_pulse_times[pulse_index]
+            bloch = free_evolution_step(bloch, omega, gamma_phi, pulse_time - current_time)
             bloch = apply_pi_x_pulse(bloch)
+            current_time = pulse_time
             pulse_index += 1
 
+        bloch = free_evolution_step(bloch, omega, gamma_phi, output_time - current_time)
+        current_time = output_time
         trajectory.append(bloch.copy())
 
     return times, np.array(trajectory)
